@@ -1,0 +1,46 @@
+# Characters
+alpha = a A b B c C d D e E f F g G h H i I j J k K l L m M n N o O p P q Q r R s S t T u U v V w W x X y Y z Z 
+number = 0 1 2 3 4 5 6 7 8 9
+alphanumeric = alpha + number
+symbols = _ { } [ ] ~ ` ! @ # $ % ^ & * ( ) - _ + = \ | : ; " ' < , > . ? /
+
+
+# Keywords
+
+## types
+struct
+short
+int
+long
+float
+double
+string
+
+## type modifiers
+const
+signed
+unsigned
+notnull
+primary
+secondary
+
+## Object creation deletion
+new
+delete
+
+## Comment
+// (^\n)* \n
+
+## identifier
+(_|alpha)(_|alpha|number)*
+
+## Numbers
+integer = [-|+](0|(1...9)(0...9)*)
+real_number = integer(NULL|.[0...9]*)
+
+## strings
+escape_sequence = \n | \\ | \t || \v || \b || \" || \r || \0 || \f
+string_literal = "((^")*(escape_sequence|alphanumeric|symbols)*"
+
+
+
