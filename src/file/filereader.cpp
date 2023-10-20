@@ -29,7 +29,7 @@ enum class SeekStart : uint8_t {
  * FileReader 
  */
 FileReader::FileReader() 
-: eof_(false), fd_(-1), buffer_(nullptr), buffer_start_(0), buffer_end_(0), max_buffer_size_(MAX_BUFFER_SIZE)
+: eof_(true), fd_(-1), buffer_(nullptr), buffer_start_(0), buffer_end_(0), max_buffer_size_(MAX_BUFFER_SIZE)
 {}
 
 FileReader::FileReader(const std::string& file_path)
@@ -51,18 +51,23 @@ FileReader::~FileReader() {
 }
 
 void FileReader::Open(const std::string& file_path) {
+    eof_ = false;
+    if (fd_ != -1) Close();
     if ((fd_ = open(file_path.c_str(), O_RDONLY)) == -1) {
         throw FileException((std::string("Failed to open file: ") + file_path).c_str());
     }
 }
 
 void FileReader::Open(const char* file_path) {
+    eof_ = false;
+    if (fd_ != -1) Close();
     if ((fd_ = open(file_path, O_RDONLY)) == -1) {
         throw FileException((std::string("Failed to open file: ") + file_path).c_str());
     }
 }
 
 void FileReader::Close() {
+    eof_ = true;
     if (fd_ != -1 && close(fd_) != -1) {
         throw FileException("Failed to close file");
     }
