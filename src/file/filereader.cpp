@@ -59,7 +59,7 @@ void FileReader::Open(const char* file_path) {
 
 void FileReader::Close() {
     eof_ = true;
-    if (fd_ != -1 && close(fd_) != -1) {
+    if (fd_ != -1 && close(fd_) == -1) {
         throw FileException(strerror(errno));
     }
 }

@@ -171,6 +171,7 @@ static const char* mTokenName[] = {
     "RBRACE",
     "COMMA",
     "TILDE",
+    "DOT",
     "COLON",
     "SCOLON",
     "EOF",
@@ -575,6 +576,7 @@ TokenState Tokenizer::ScanNumber() {
                         curr_state = TokenState::kS_DOT;
                     } break;
                     default: {
+                        curr_token_ = TokenType::kINTEGER;
                         curr_state = TokenState::kS_DONE;
                     }
                 }
@@ -585,6 +587,7 @@ TokenState Tokenizer::ScanNumber() {
                         curr_token_val_ += NextChar();
                     } break;
                     default: {
+                        curr_token_ = TokenType::kREAL_NUMBER;
                         curr_state = TokenState::kS_DONE;
                     }
                 }
@@ -609,6 +612,8 @@ TokenState Tokenizer::ScanString() {
             case TokenState::kS_STRING_LITERAL: {
                 switch(mCharType[PeekChar()]) {
                     case CharType::kDQUOTE: {
+                        NextChar();
+                        curr_token_ = TokenType::kSTRING_LITERAL;
                         curr_state = TokenState::kS_DONE;
                     } break;
                     case CharType::kFSLASH: {
@@ -616,10 +621,12 @@ TokenState Tokenizer::ScanString() {
                         curr_state = TokenState::kS_ESCAPE;
                     } break; 
                     case CharType::kNULL: {
+                        curr_token_ = TokenType::kERROR;
                         curr_token_val_ = "Unexpected null character";
                         curr_state = TokenState::kS_ERROR;
                     } break;
                     case CharType::kNEWLINE: {
+                        curr_token_ = TokenType::kERROR;
                         curr_token_val_ = "Missing \"";
                         curr_state = TokenState::kS_ERROR;
                     } break;
