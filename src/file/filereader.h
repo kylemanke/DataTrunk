@@ -6,7 +6,13 @@
 #include <cstdint>
 #include <string>
 
-enum class SeekStart : uint8_t;
+enum class SeekStart : uint8_t {
+    kSEEK_SET = SEEK_SET,
+    kSEEK_CUR = SEEK_CUR,
+    kSEEK_END = SEEK_END,
+    kSEEK_DATA = SEEK_DATA,
+    kSEEK_HOLE = SEEK_HOLE
+};
 
 /**
  * @brief Responsible for buffered file reading
@@ -131,7 +137,7 @@ private:
      * Buffer Items 
      */
     std::unique_ptr<uint8_t[]> buffer_;
-    uint32_t buffer_start_;
+    int32_t buffer_start_;
     int32_t buffer_end_;
     const uint32_t max_buffer_size_;
 };

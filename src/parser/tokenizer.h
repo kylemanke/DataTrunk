@@ -8,8 +8,77 @@
 // Local Includes
 #include <file/filereader.h>
 
-enum class CharType : uint8_t;
-enum class TokenType : uint8_t;
+enum class TokenState : uint16_t;
+
+enum class TokenType : uint8_t {
+    // DATA TYPES
+    kSTRUCT,
+    kBYTE,
+    kSHORT,
+    kINT,
+    kLONG,
+    kFLOAT,
+    kDOUBLE,
+    kSTRING,
+    // MODIFIERS
+    kCONST,
+    kSIGNED,
+    kUNSIGNED,
+    kNOTNULL,
+    kPRIMARY,
+    kSECONDARY,
+    // CREATION/DELETION Keywords
+    kNEW,
+    kDELETE,
+    kCOMMENT,
+    // NAMES
+    kIDENTIFIER,
+    // NUMBERS
+    kINTEGER,
+    kREAL_NUMBER,
+    // STRINGS
+    kSTRING_LITERAL,
+    // BOOLEAN OPERATORS
+    kBOOL_AND,
+    kBOOL_OR,
+    kLT,
+    kLTE,
+    kEQUALITY,
+    kDNE,
+    kNOT,
+    kGT,
+    kGTE,
+    // ARITHMETIC_OPERATORS
+    kPLUS,
+    kMINUS,
+    kASTERISK,
+    kDIVIDE,
+    kMODULO,
+    // ASSIGNMENT_OPERATORS
+    kASSIGN,
+    kADD_EQU,
+    kSUB_EQU,
+    kMULT_EQU,
+    kDIV_EQU,
+    kMOD_EQU,
+    // SPECIAL CHARACTERS
+    kLBRACK,
+    kRBRACK,
+    kLPAREN,
+    kRPAREN,
+    kLBRACE,
+    kRBRACE,
+    kCOMMA,
+    kTILDE,
+    kDOT,
+    kCOLON,
+    kSCOLON,
+    // Function
+    kEOF,
+    kBEGIN,
+    // ERRORS
+    kERROR
+};
 
 
 /**
@@ -37,6 +106,11 @@ public:
     TokenType CurrToken() const noexcept;
     TokenType NextToken();
     std::string CurrTokenValue() const noexcept;
+
+    /**
+     * DEBUG 
+     */
+    std::string GetDebugStr() const noexcept;
 
 private:
     /**

@@ -1,0 +1,7 @@
+// This is a simple test file
+struct TestStruct {
+    primary int id_ = AutoIncrement(100);
+    secondary float gpa_ = 4.0;
+};
+
+Trunk new_trunk = new Trunk("Test_Trunk", TestStruct);

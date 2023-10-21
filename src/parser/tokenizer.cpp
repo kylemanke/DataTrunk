@@ -47,75 +47,6 @@ enum class CharType : uint8_t {
     kILLEGAL    // Not valid characters
 };
 
-enum class TokenType : uint8_t {
-    // DATA TYPES
-    kSTRUCT,
-    kBYTE,
-    kSHORT,
-    kINT,
-    kLONG,
-    kFLOAT,
-    kDOUBLE,
-    kSTRING,
-    // MODIFIERS
-    kCONST,
-    kSIGNED,
-    kUNSIGNED,
-    kNOTNULL,
-    kPRIMARY,
-    kSECONDARY,
-    // CREATION/DELETION Keywords
-    kNEW,
-    kDELETE,
-    kCOMMENT,
-    // NAMES
-    kIDENTIFIER,
-    // NUMBERS
-    kINTEGER,
-    kREAL_NUMBER,
-    // STRINGS
-    kSTRING_LITERAL,
-    // BOOLEAN OPERATORS
-    kBOOL_AND,
-    kBOOL_OR,
-    kLT,
-    kLTE,
-    kEQUALITY,
-    kDNE,
-    kNOT,
-    kGT,
-    kGTE,
-    // ARITHMETIC_OPERATORS
-    kPLUS,
-    kMINUS,
-    kASTERISK,
-    kDIVIDE,
-    kMODULO,
-    // ASSIGNMENT_OPERATORS
-    kASSIGN,
-    kADD_EQU,
-    kSUB_EQU,
-    kMULT_EQU,
-    kDIV_EQU,
-    kMOD_EQU,
-    // SPECIAL CHARACTERS
-    kLBRACK,
-    kRBRACK,
-    kLPAREN,
-    kRPAREN,
-    kLBRACE,
-    kRBRACE,
-    kCOMMA,
-    kTILDE,
-    kDOT,
-    kCOLON,
-    kSCOLON,
-    // Function
-    kEOF,
-    // ERRORS
-    kERROR
-};
-
 enum class TokenState : uint16_t {
     // Book keeping states
     kS0, kS_DONE, kS_ERROR,
@@ -131,7 +62,7 @@ enum class TokenState : uint16_t {
     kS_C, kS_CO, kS_CON, kS_CONS, kS_CONST,
     kS_SI, kS_SIG, kS_SIGN, kS_SIGNE, kS_SIGNED,
     kS_U, kS_UN, kS_UNS, kS_UNSI, kS_UNSIG, kS_UNSIGN, kS_UNSIGNE, kS_UNSIGNED,
-    kS_N, kS_NO, kS_NOT, kS_NOTN, kS_NOTN, kS_NOTNU, kS_NOTNUL, kS_NOTNULL,
+    kS_N, kS_NO, kS_NOT, kS_NOTN, kS_NOTNU, kS_NOTNUL, kS_NOTNULL,
     kS_P, kS_PR, kS_PRI, kS_PRIM, kS_PRIMA, kS_PRIMAR, kS_PRIMARY,
     kS_SE, kS_SEC, kS_SECO, kS_SECON, kS_SECOND, kS_SECONDA, kS_SECONDAR, kS_SECONDARY,
     kS_NE, kS_NEW,
@@ -146,7 +77,7 @@ enum class TokenState : uint16_t {
     // Strings
     kS_STRING_LITERAL,
     // Boolean Operators
-    kS_AND, kS_OR, kS_LT, kS_GT, kS_NOT, kS_EQUAL,
+    kS_AND, kS_OR, kS_LT, kS_GT, kS_BANG, kS_EQUAL,
     // Arithmetic Operators
     kS_PLUS, kS_MINUS, kS_AST, kS_FORWARD_SLASH, kS_MOD,
     // Special Characters
@@ -190,6 +121,63 @@ static const char mLower[] = {
 /* 7x */   0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x7B, 0x7C, 0x7D, 0x7E, 0x7F
 };
 
+static const char* mTokenName[] = {
+    "STRUCT",
+    "BYTE",
+    "SHORT",
+    "INT",
+    "LONG",
+    "FLOAT",
+    "DOUBLE",
+    "STRING",
+    "CONST",
+    "SIGNED",
+    "UNSIGNED",
+    "NOTNULL",
+    "PRIMARY",
+    "SECONDARY",
+    "NEW",
+    "DELETE",
+    "COMMENT",
+    "IDENTIFIER",
+    "INTEGER",
+    "REAL_NUMBER",
+    "STRING_LITERAL",
+    "BOOL_AND",
+    "BOOL_OR",
+    "LT",
+    "LTE",
+    "EQUALITY",
+    "DNE",
+    "NOT",
+    "GT",
+    "GTE",
+    "PLUS",
+    "MINUS",
+    "ASTERISK",
+    "DIVIDE",
+    "MODULO",
+    "ASSIGN",
+    "ADD_EQU",
+    "SUB_EQU",
+    "MULT_EQU",
+    "DIV_EQU",
+    "MOD_EQU",
+    "LBRACK",
+    "RBRACK",
+    "LPAREN",
+    "RPAREN",
+    "LBRACE",
+    "RBRACE",
+    "COMMA",
+    "TILDE",
+    "COLON",
+    "SCOLON",
+    "EOF",
+    "BEGIN",
+    "ERROR"
+};
+
 Tokenizer::Tokenizer() noexcept
 : str_i_(0), str_(""), curr_token_(TokenType::kEOF), curr_token_val_("")
 {}
@@ -200,22 +188,26 @@ void Tokenizer::OpenString(const std::string& trunk_str) {
     fr_.Close();
     str_i_ = 0;
     str_ = trunk_str;
+    curr_token_ = TokenType::kBEGIN;
 }
 
 void Tokenizer::OpenString(const char* trunk_str) {
     fr_.Close();
     str_i_ = 0;
     str_ = std::string(trunk_str);
+    curr_token_ = TokenType::kBEGIN;
 }
 
 void Tokenizer::OpenFile(const std::string& file_name) {
     str_ = "";
     fr_.Open(file_name);
+    curr_token_ = TokenType::kBEGIN;
 }
 
 void Tokenizer::OpenFile(const char* file_name) {
     str_ = "";
     fr_.Open(file_name);
+    curr_token_ = TokenType::kBEGIN;
 }
 
 TokenType Tokenizer::CurrToken() const noexcept {
@@ -224,6 +216,12 @@ TokenType Tokenizer::CurrToken() const noexcept {
 
 std::string Tokenizer::CurrTokenValue() const noexcept {
     return curr_token_val_;
+}
+
+std::string Tokenizer::GetDebugStr() const noexcept {
+    std::string curr_str(mTokenName[static_cast<uint8_t>(curr_token_)]);
+    curr_str += ": " + curr_token_val_;
+    return curr_str;
 }
 
 uint8_t Tokenizer::NextChar() {
@@ -504,11 +502,11 @@ TokenType Tokenizer::NextToken() {
             } break;
             case TokenState::kS_REAL_NUMBER: {
                 curr_state = ScanNumber();
-            }
+            } break;
             case TokenState::kS_COMMENT: {
                 curr_token_val_ = "";
                 curr_token_ = TokenType::kEOF;
-                while(PeekChar() != '\n' || PeekChar() != '\0') {
+                while(PeekChar() != '\n' && PeekChar() != '\0') {
                     NextChar();
                 }
                 if (PeekChar() == '\0') {
@@ -624,7 +622,7 @@ TokenState Tokenizer::ScanString() {
                     case CharType::kNEWLINE: {
                         curr_token_val_ = "Missing \"";
                         curr_state = TokenState::kS_ERROR;
-                    }
+                    } break;
                     default: {
                         curr_token_val_ += NextChar();
                     }
@@ -700,6 +698,215 @@ TokenState Tokenizer::ScanString() {
     return curr_state;
 }
 
-TokenState Tokenizer::ScanIdentifier() {
-    
+#define KEYWORD_CASE(CURR_STATE, CHAR, NEXT_STATE) \
+case CURR_STATE: { \
+    if (PeekChar() == CHAR) { \
+        curr_token_val_ += NextChar(); \
+        curr_state = NEXT_STATE; \
+    } else {\
+        return TokenState::kS_IDENTIFIER; \
+    } \
+} break;
+
+#define KEYWORD_CASE_2(CURR_STATE, CHAR1, NEXT1, CHAR2, NEXT2) \
+case CURR_STATE: {\
+    if (PeekChar() == CHAR1) {\
+        curr_token_val_ += NextChar();\
+        curr_state = NEXT1;\
+    } else if (PeekChar() == CHAR2) {\
+        curr_token_val_ += NextChar();\
+        curr_state = NEXT2;\
+    } else {\
+        return TokenState::kS_IDENTIFIER;\
+    } \
+}break;
+
+#define FINAL_CASE(CURR_STATE, FINAL_TOKEN) \
+case CURR_STATE: { \
+    CharType next_type = mCharType[PeekChar()]; \
+    if (next_type == CharType::kALPHA || next_type == CharType::kDIGIT || next_type == CharType::kUNDER) { \
+        return TokenState::kS_IDENTIFIER; \
+    } else { \
+        curr_token_ = FINAL_TOKEN; \
+        return TokenState::kS_DONE; \
+    } \
+} break; 
+
+TokenState Tokenizer::ScanKeyword() {
+    TokenState curr_state = TokenState::kS0;
+    while(1) {
+        switch(curr_state) {
+            case TokenState::kS0: {
+                switch(PeekChar()) {
+                    case 's': {
+                        curr_token_val_ += NextChar();
+                        curr_state = TokenState::kS_S;
+                    } break;
+                    case 'b': {
+                        curr_token_val_ += NextChar();
+                        curr_state = TokenState::kS_B;
+                    } break;
+                    case 'i': {
+                        curr_token_val_ += NextChar();
+                        curr_state = TokenState::kS_I;
+                    } break;
+                    case 'l': {
+                        curr_token_val_ += NextChar();
+                        curr_state = TokenState::kS_L;
+                    } break;
+                    case 'f': {
+                        curr_token_val_ += NextChar();
+                        curr_state = TokenState::kS_F;
+                    } break;
+                    case 'd': {
+                        curr_token_val_ += NextChar();
+                        curr_state = TokenState::kS_D;
+                    } break;
+                    case 'c': {
+                        curr_token_val_ += NextChar();
+                        curr_state = TokenState::kS_C;
+                    } break;
+                    case 'u': {
+                        curr_token_val_ += NextChar();
+                        curr_state = TokenState::kS_U;
+                    } break;
+                    case 'n': {
+                        curr_token_val_ += NextChar();
+                        curr_state = TokenState::kS_N;
+                    } break;
+                    case 'p': {
+                        curr_token_val_ += NextChar();
+                        curr_state = TokenState::kS_P;
+                    } break;
+                    default: {
+                        return TokenState::kS_IDENTIFIER;
+                    }
+                }
+            } break;
+            // BYTE
+            KEYWORD_CASE(TokenState::kS_B, 'y', TokenState::kS_BY)
+            KEYWORD_CASE(TokenState::kS_BY, 't', TokenState::kS_BYT)
+            KEYWORD_CASE(TokenState::kS_BYT, 'e', TokenState::kS_BYTE)
+            FINAL_CASE(TokenState::kS_BYTE, TokenType::kBYTE)
+            // INT
+            KEYWORD_CASE(TokenState::kS_I, 'n', TokenState::kS_IN)
+            KEYWORD_CASE(TokenState::kS_IN, 't', TokenState::kS_INT)
+            FINAL_CASE(TokenState::kS_INT, TokenType::kINT);
+            // LONG
+            KEYWORD_CASE(TokenState::kS_L, 'o', TokenState::kS_LO)
+            KEYWORD_CASE(TokenState::kS_LO, 'n', TokenState::kS_LON)
+            KEYWORD_CASE(TokenState::kS_LON, 'g', TokenState::kS_LONG)
+            FINAL_CASE(TokenState::kS_LONG, TokenType::kLONG)
+            // FLOAT
+            KEYWORD_CASE(TokenState::kS_F, 'l', TokenState::kS_FL)
+            KEYWORD_CASE(TokenState::kS_FL, 'o', TokenState::kS_FLO)
+            KEYWORD_CASE(TokenState::kS_FLO, 'a', TokenState::kS_FLOA)
+            KEYWORD_CASE(TokenState::kS_FLOA, 't', TokenState::kS_FLOAT)
+            FINAL_CASE(TokenState::kS_FLOAT, TokenType::kFLOAT)
+            // CONST
+            KEYWORD_CASE(TokenState::kS_C, 'o', TokenState::kS_CO)
+            KEYWORD_CASE(TokenState::kS_CO, 'n', TokenState::kS_CON)
+            KEYWORD_CASE(TokenState::kS_CON, 's', TokenState::kS_CONS)
+            KEYWORD_CASE(TokenState::kS_CONS, 't', TokenState::kS_CONST)
+            FINAL_CASE(TokenState::kS_CONST, TokenType::kCONST)
+            // UNSIGNED
+            KEYWORD_CASE(TokenState::kS_U, 'n', TokenState::kS_UN)
+            KEYWORD_CASE(TokenState::kS_UN, 's', TokenState::kS_UNS)
+            KEYWORD_CASE(TokenState::kS_UNS, 'i', TokenState::kS_UNSI)
+            KEYWORD_CASE(TokenState::kS_UNSI, 'g', TokenState::kS_UNSIG)
+            KEYWORD_CASE(TokenState::kS_UNSIG, 'n', TokenState::kS_UNSIGN)
+            KEYWORD_CASE(TokenState::kS_UNSIGN, 'e', TokenState::kS_UNSIGNE)
+            KEYWORD_CASE(TokenState::kS_UNSIGNE, 'd', TokenState::kS_UNSIGNED)
+            FINAL_CASE(TokenState::kS_UNSIGNED, TokenType::kUNSIGNED)
+            // PRIMARY
+            KEYWORD_CASE(TokenState::kS_P, 'r', TokenState::kS_PR)
+            KEYWORD_CASE(TokenState::kS_PR, 'i', TokenState::kS_PRI)
+            KEYWORD_CASE(TokenState::kS_PRI, 'm', TokenState::kS_PRIM)
+            KEYWORD_CASE(TokenState::kS_PRIM, 'a', TokenState::kS_PRIMA)
+            KEYWORD_CASE(TokenState::kS_PRIMA, 'r', TokenState::kS_PRIMAR)
+            KEYWORD_CASE(TokenState::kS_PRIMAR, 'y', TokenState::kS_PRIMARY)
+            FINAL_CASE(TokenState::kS_PRIMARY, TokenType::kPRIMARY)
+            // DOUBLE
+            KEYWORD_CASE_2(TokenState::kS_D, 'o', TokenState::kS_DO, 'e', TokenState::kS_DE)
+            KEYWORD_CASE(TokenState::kS_DO, 'u', TokenState::kS_DOU)
+            KEYWORD_CASE(TokenState::kS_DOU, 'b', TokenState::kS_DOUB)
+            KEYWORD_CASE(TokenState::kS_DOUB, 'l', TokenState::kS_DOUBL)
+            KEYWORD_CASE(TokenState::kS_DOUBL, 'e', TokenState::kS_DOUBLE)
+            FINAL_CASE(TokenState::kS_DOUBLE, TokenType::kDOUBLE)
+            // DELETE
+            KEYWORD_CASE(TokenState::kS_DE, 'l', TokenState::kS_DEL)
+            KEYWORD_CASE(TokenState::kS_DEL, 'e', TokenState::kS_DELE)
+            KEYWORD_CASE(TokenState::kS_DELE, 't', TokenState::kS_DELET)
+            KEYWORD_CASE(TokenState::kS_DELET, 'e', TokenState::kS_DELETE)
+            FINAL_CASE(TokenState::kS_DELETE, TokenType::kDELETE)
+            // NEW
+            KEYWORD_CASE_2(TokenState::kS_N, 'e', TokenState::kS_NE, 'o', TokenState::kS_NO)
+            KEYWORD_CASE(TokenState::kS_NE, 'w', TokenState::kS_NEW)
+            FINAL_CASE(TokenState::kS_NEW, TokenType::kNEW)
+            // NOTNULL
+            KEYWORD_CASE(TokenState::kS_NO, 't', TokenState::kS_NOT)
+            KEYWORD_CASE(TokenState::kS_NOT, 'n', TokenState::kS_NOTN)
+            KEYWORD_CASE(TokenState::kS_NOTN, 'u', TokenState::kS_NOTNU)
+            KEYWORD_CASE(TokenState::kS_NOTNU, 'l', TokenState::kS_NOTNUL)
+            KEYWORD_CASE(TokenState::kS_NOTNUL, 'l', TokenState::kS_NOTNULL)
+            FINAL_CASE(TokenState::kS_NOTNULL, TokenType::kNOTNULL)
+            // INITIAL STR
+            case TokenState::kS_S: {
+                switch(PeekChar()) {
+                    case 't': {
+                        curr_token_val_ += NextChar();
+                        curr_state = TokenState::kS_ST;
+                    } break;
+                    case 'h': {
+                        curr_token_val_ += NextChar();
+                        curr_state = TokenState::kS_SH;
+                    } break;
+                    case 'i': {
+                        curr_token_val_ += NextChar();
+                        curr_state = TokenState::kS_SI;
+                    } break;
+                    case 'e': {
+                        curr_token_val_ += NextChar();
+                        curr_state = TokenState::kS_SE;
+                    } break;
+                    default: return TokenState::kS_IDENTIFIER;
+                }
+            } break;
+            KEYWORD_CASE(TokenState::kS_ST, 'r', TokenState::kS_STR)
+            KEYWORD_CASE_2(TokenState::kS_STR, 'u', TokenState::kS_STRU, 'i', TokenState::kS_STRI)
+            // STRUCT
+            KEYWORD_CASE(TokenState::kS_STRU, 'c', TokenState::kS_STRUC)
+            KEYWORD_CASE(TokenState::kS_STRUC, 't', TokenState::kS_STRUCT)
+            FINAL_CASE(TokenState::kS_STRUCT, TokenType::kSTRUCT)
+            // STRING
+            KEYWORD_CASE(TokenState::kS_STRI, 'n', TokenState::kS_STRIN)
+            KEYWORD_CASE(TokenState::kS_STRIN, 'g', TokenState::kS_STRING)
+            FINAL_CASE(TokenState::kS_STRING, TokenType::kSTRING)
+            // SHORT
+            KEYWORD_CASE(TokenState::kS_SH, 'o', TokenState::kS_SHO)
+            KEYWORD_CASE(TokenState::kS_SHO, 'r', TokenState::kS_SHOR)
+            KEYWORD_CASE(TokenState::kS_SHOR, 't', TokenState::kS_SHORT)
+            FINAL_CASE(TokenState::kS_SHORT, TokenType::kSHORT)
+            // SIGNED
+            KEYWORD_CASE(TokenState::kS_SI, 'g', TokenState::kS_SIG)
+            KEYWORD_CASE(TokenState::kS_SIG, 'n', TokenState::kS_SIGN)
+            KEYWORD_CASE(TokenState::kS_SIGN, 'e', TokenState::kS_SIGNE)
+            KEYWORD_CASE(TokenState::kS_SIGNE, 'd', TokenState::kS_SIGNED)
+            FINAL_CASE(TokenState::kS_SIGNED, TokenType::kSIGNED)
+            // SECONDARY
+            KEYWORD_CASE(TokenState::kS_SE, 'c', TokenState::kS_SEC)
+            KEYWORD_CASE(TokenState::kS_SEC, 'o', TokenState::kS_SECO)
+            KEYWORD_CASE(TokenState::kS_SECO, 'n', TokenState::kS_SECON)
+            KEYWORD_CASE(TokenState::kS_SECON, 'd', TokenState::kS_SECOND)
+            KEYWORD_CASE(TokenState::kS_SECOND, 'a', TokenState::kS_SECONDA)
+            KEYWORD_CASE(TokenState::kS_SECONDA, 'r', TokenState::kS_SECONDAR)
+            KEYWORD_CASE(TokenState::kS_SECONDAR, 'y', TokenState::kS_SECONDARY)
+            FINAL_CASE(TokenState::kS_SECONDARY, TokenType::kSECONDARY)
+            default: {
+                curr_token_ = TokenType::kERROR;
+                throw TokenException("Invalid state within ScanIdentifier");
+            }
+        }
+    }
+    return curr_state;
 }

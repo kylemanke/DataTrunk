@@ -15,35 +15,26 @@
 #define MAX_BUFFER_SIZE 4096
 
 /**
- * Enums
- */
-enum class SeekStart : uint8_t {
-    kSEEK_SET = SEEK_SET,
-    kSEEK_CUR = SEEK_CUR,
-    kSEEK_END = SEEK_END,
-    kSEEK_DATA = SEEK_DATA,
-    kSEEK_HOLE = SEEK_HOLE
-};
-
-/**
  * FileReader 
  */
 FileReader::FileReader() 
 : eof_(true), fd_(-1), buffer_(nullptr), buffer_start_(0), buffer_end_(0), max_buffer_size_(MAX_BUFFER_SIZE)
-{}
+{
+    buffer_ = std::make_unique<uint8_t[]>(max_buffer_size_);
+}
 
 FileReader::FileReader(const std::string& file_path)
 : eof_(false), buffer_start_(0), buffer_end_(0), max_buffer_size_(MAX_BUFFER_SIZE)
 {
-    Open(file_path.c_str());
     buffer_ = std::make_unique<uint8_t[]>(max_buffer_size_);
+    Open(file_path.c_str());
 }
 
 FileReader::FileReader(const char* file_path)
 : eof_(false), buffer_start_(0), buffer_end_(0), max_buffer_size_(MAX_BUFFER_SIZE)
 {
-    Open(file_path);
     buffer_ = std::make_unique<uint8_t[]>(max_buffer_size_);
+    Open(file_path);
 }
 
 FileReader::~FileReader() {
@@ -69,7 +60,7 @@ void FileReader::Open(const char* file_path) {
 void FileReader::Close() {
     eof_ = true;
     if (fd_ != -1 && close(fd_) != -1) {
-        throw FileException("Failed to close file");
+        throw FileException(strerror(errno));
     }
 }
 
@@ -122,17 +113,17 @@ uint32_t FileReader::ReadLine(uint8_t* buffer, uint32_t buffer_size, uint8_t end
 }
 
 uint32_t FileReader::Seek(uint32_t offset, SeekStart whence) {
-    uint32_t ret_val = 0;
-    if ((ret_val == lseek(fd_, offset, (uint32_t)whence)) == -1)
-        throw FileException("Failed to seek");
+    int32_t ret_val = 0;
+    if ((ret_val = lseek(fd_, offset, (uint32_t)whence)) == -1)
+        throw FileException(strerror(errno));
     FillBuffer();
-    return ret_val;
+    return static_cast<uint32_t>(ret_val);
 }
 
 uint32_t FileReader::FillBuffer() {
     buffer_start_ = 0;
     if ((buffer_end_ = read(fd_, buffer_.get(), max_buffer_size_)) == -1) {
-        throw FileException("Failed to read file");
+        throw FileException(strerror(errno));
     } else if (buffer_end_ == 0) {
         eof_ = true;
     }
