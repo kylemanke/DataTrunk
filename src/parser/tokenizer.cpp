@@ -57,6 +57,9 @@ enum class TokenState : uint16_t {
     kS_I, kS_IN, kS_INT,
     kS_L, kS_LO, kS_LON, kS_LONG,
     kS_F, kS_FL, kS_FLO, kS_FLOA, kS_FLOAT,
+    kS_FO, kS_FOR,
+    kS_W, kS_WH, kS_WHI, kS_WHIL, kS_WHILE,
+    kS_R, kS_RE, kS_RET, kS_RETU, kS_RETUR, kS_RETURN,
     kS_D, kS_DO, kS_DOU, kS_DOUB, kS_DOUBL, kS_DOUBLE,
     kS_STRI, kS_STRIN, kS_STRING,
     kS_C, kS_CO, kS_CON, kS_CONS, kS_CONST,
@@ -139,6 +142,9 @@ static const char* mTokenName[] = {
     "NEW",
     "DELETE",
     "COMMENT",
+    "FOR",
+    "WHILE",
+    "RETURN",
     "IDENTIFIER",
     "INTEGER",
     "REAL_NUMBER",
@@ -785,6 +791,14 @@ TokenState Tokenizer::ScanKeyword() {
                         curr_token_val_ += NextChar();
                         curr_state = TokenState::kS_P;
                     } break;
+                    case 'w': {
+                        curr_token_val_ += NextChar();
+                        curr_state = TokenState::kS_W;
+                    } break;
+                    case 'r': {
+                        curr_token_val_ += NextChar();
+                        curr_state = TokenState::kS_R;
+                    } break;
                     default: {
                         return TokenState::kS_IDENTIFIER;
                     }
@@ -805,7 +819,7 @@ TokenState Tokenizer::ScanKeyword() {
             KEYWORD_CASE(TokenState::kS_LON, 'g', TokenState::kS_LONG)
             FINAL_CASE(TokenState::kS_LONG, TokenType::kLONG)
             // FLOAT
-            KEYWORD_CASE(TokenState::kS_F, 'l', TokenState::kS_FL)
+            KEYWORD_CASE_2(TokenState::kS_F, 'l', TokenState::kS_FL, 'o', TokenState::kS_FO)
             KEYWORD_CASE(TokenState::kS_FL, 'o', TokenState::kS_FLO)
             KEYWORD_CASE(TokenState::kS_FLO, 'a', TokenState::kS_FLOA)
             KEYWORD_CASE(TokenState::kS_FLOA, 't', TokenState::kS_FLOAT)
@@ -909,6 +923,22 @@ TokenState Tokenizer::ScanKeyword() {
             KEYWORD_CASE(TokenState::kS_SECONDA, 'r', TokenState::kS_SECONDAR)
             KEYWORD_CASE(TokenState::kS_SECONDAR, 'y', TokenState::kS_SECONDARY)
             FINAL_CASE(TokenState::kS_SECONDARY, TokenType::kSECONDARY)
+            // FOR
+            KEYWORD_CASE(TokenState::kS_FO, 'r', TokenState::kS_FOR)
+            FINAL_CASE(TokenState::kS_FOR, TokenType::kFOR)
+            // WHILE
+            KEYWORD_CASE(TokenState::kS_W, 'h', TokenState::kS_WH)
+            KEYWORD_CASE(TokenState::kS_WH, 'i', TokenState::kS_WHI)
+            KEYWORD_CASE(TokenState::kS_WHI, 'l', TokenState::kS_WHIL)
+            KEYWORD_CASE(TokenState::kS_WHIL, 'e', TokenState::kS_WHILE)
+            FINAL_CASE(TokenState::kS_WHILE, TokenType::kWHILE)
+            // RETURN
+            KEYWORD_CASE(TokenState::kS_R, 'e', TokenState::kS_RE)
+            KEYWORD_CASE(TokenState::kS_RE, 't', TokenState::kS_RET)
+            KEYWORD_CASE(TokenState::kS_RET, 'u', TokenState::kS_RETU)
+            KEYWORD_CASE(TokenState::kS_RETU, 'r', TokenState::kS_RETUR)
+            KEYWORD_CASE(TokenState::kS_RETUR, 'n', TokenState::kS_RETURN)
+            FINAL_CASE(TokenState::kS_RETURN, TokenType::kRETURN)
             default: {
                 curr_token_ = TokenType::kERROR;
                 throw TokenException("Invalid state within ScanIdentifier");

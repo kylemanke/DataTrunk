@@ -31,6 +31,11 @@ enum class TokenType : uint8_t {
     kNEW,
     kDELETE,
     kCOMMENT,
+    // LOOPS,
+    kFOR,
+    kWHILE,
+    // FUNCTIONS
+    kRETURN,
     // NAMES
     kIDENTIFIER,
     // NUMBERS
