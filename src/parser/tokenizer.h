@@ -20,6 +20,10 @@ enum class TokenType : uint8_t {
     kFLOAT,
     kDOUBLE,
     kSTRING,
+    // BOOLEANS
+    kBOOL,
+    kTRUE,
+    kFALSE,
     // MODIFIERS
     kCONST,
     kSIGNED,
