@@ -1,0 +1,55 @@
+<Program>               := <PrgmList>
+<PrgmList>              := <StructDecl> <PrgmList>
+                        |  <FuncDecl> <PrgmList>
+                        |  <EMPTY>
+<StructDecl>            := <StructHead> <StructBody>;
+<StructHead>            := struct identifier <StructInheritance>
+<StructInheritance>     := : identifier
+                        |  <EMPTY>
+<StructBody>            := { <StructDefList> }
+                        |  <EMPTY>
+StructDefList           := <StructMemberDecl> <StructDefList>
+                        |  <StructMethodDecl> <StructDefList>
+<StructMemberDecl>      := <KeyType> <MemberModifiers> <VarDecl>;
+<KeyType>               := primary
+                        |  secondary
+                        |  <EMPTY>
+<MemberModifiers        := notnull
+                        | <EMPTY>
+<VarDecl>               := <VarModifer> <VarType> <Pointer> identifier <DeclArray> <DeclAssign>
+<VarModifer>            := <ConstMod> <SignMod>
+<ConstMod>              := const
+                        | <EMPTY>
+<SignMod>               := signed
+                        |  unsigned
+                        |  <EMPTY>
+<VarType>               := byte
+                        |  short
+                        |  int
+                        |  long 
+                        |  float 
+                        |  double 
+                        |  string
+                        |  identifier 
+                        |  bool
+<Pointer>               := * <Pointer>
+                        |  <EMPTY>
+<DeclArray>             := [ <Expr> ]
+                        |  []
+                        |  <EMPTY>
+<DeclAssign>            := = <Expr>
+                        |  <EMPTY>
+<EXPR>                  := <Expr> || <AndTerm>
+                        |  <AndTerm>
+<AndTerm>               := <AndTerm> && <RelExpr>
+                        |  <RelExpr>
+<RelExpr>               := <RelExpr> == <NumExpr>
+                        |  <RelExpr> != <NumExpr>
+                        |  <RelExpr> <= <NumExpr>
+                        |  <RelExpr> < <NumExpr>
+                        |  <RelExpr> >= <NumExpr>
+                        |  <RelExpr> > <NumExpr>
+                        |  <NumExpr>
+<NumExpr>               := 
+
+<EMPTY> := 

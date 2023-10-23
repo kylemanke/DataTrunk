@@ -81,6 +81,7 @@ struct BaseObject {
 - Like C++ whitespace does not matter unless necessary to separate tokens
 
 ## Actual language (Object Oriented, noSQL)
+*. Entry to a program will be in main()
 0. Define Objects (must be declared before use) // All objects will have a included key that mark their type
 struct embedded_struct {
     ...;
